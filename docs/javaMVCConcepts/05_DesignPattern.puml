@@ -1,0 +1,19 @@
+@startuml
+actor Client
+participant "Controller" as C
+participant "Service" as S
+participant "DAO" as D
+participant "Repository" as R
+database "Database" as DB
+
+Client -> C : GET /users
+C -> S : getAllUsers()
+S -> D : fetchAllUsers()
+D -> R : findAll()
+R -> DB : SELECT * FROM users
+DB -> R : Return List<UserEntity>
+R -> D : Return List<UserEntity>
+D -> S : Convert UserEntity -> UserDTO
+S -> C : Return List<UserDTO>
+C -> Client : Response JSON List<UserDTO>
+@enduml
