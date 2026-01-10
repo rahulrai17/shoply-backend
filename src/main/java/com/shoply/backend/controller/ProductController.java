@@ -1,20 +1,23 @@
 package com.shoply.backend.controller;
 
-import com.shoply.backend.config.AppConstants;
-import com.shoply.backend.payload.ProductDTO;
-import com.shoply.backend.payload.ProductResponse;
-import com.shoply.backend.service.ProductService;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.io.IOException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import com.shoply.backend.config.AppConstants;
+import com.shoply.backend.payload.ProductDTO;
+import com.shoply.backend.payload.ProductResponse;
+import com.shoply.backend.service.ProductService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Products", description = "Product and Catalog Management")
 public class ProductController {
 
     @Autowired

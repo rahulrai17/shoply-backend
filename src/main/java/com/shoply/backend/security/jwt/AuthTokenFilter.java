@@ -1,6 +1,7 @@
 package com.shoply.backend.security.jwt;
 
 
+import com.shoply.backend.security.service.UserDetailsImpl;
 import com.shoply.backend.security.service.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,14 +18,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.ZoneId;
 
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
-    @Autowired
-    private JwtUtils jwtUtils;
+    
+    private final JwtUtils jwtUtils;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    public AuthTokenFilter(JwtUtils jwtUtils, UserDetailsServiceImpl userDetailsService) {
+        this.jwtUtils = jwtUtils;
+        this.userDetailsService = userDetailsService;
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
@@ -38,7 +43,23 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
+                
+                // Validate Token Timestamp against Last Logout
+                UserDetailsImpl userDetailsImpl = (UserDetailsImpl) userDetails;
+                if (userDetailsImpl.getLastLogoutDate() != null) {
+                    java.util.Date issuedAt = jwtUtils.getIssuedAtFromJwtToken(jwt);
+                    java.time.LocalDateTime issuedTime = issuedAt.toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime();
+                    
+                    if (issuedTime.isBefore(userDetailsImpl.getLastLogoutDate())) {
+                        logger.warn("Rejected invalidated token for user: {}. Issued: {}, Logout: {}", 
+                                username, issuedTime, userDetailsImpl.getLastLogoutDate());
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
+                }
+                
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails,
                                 null,
@@ -57,8 +78,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     }
 
     private String parseJwt(HttpServletRequest request) {
-        String jwt = jwtUtils.getJwtFromCookies(request);
-        logger.debug("AuthTokenFilter.java: {}", jwt);
-        return jwt;
+        String jwt = jwtUtils.getJwtFromHeader(request); // Check Header first
+        if (jwt != null) {
+            return jwt;
+        }
+        return jwtUtils.getJwtFromCookies(request); // Fallback to Cookie
     }
 }

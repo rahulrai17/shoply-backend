@@ -4,6 +4,7 @@ import com.shoply.backend.model.User;
 import com.shoply.backend.payload.AddressDTO;
 import com.shoply.backend.service.AddressService;
 import com.shoply.backend.util.AuthUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Addresses", description = "Manage User Addresses")
 public class AddressController {
 
     @Autowired
@@ -31,7 +33,7 @@ public class AddressController {
         return new ResponseEntity<>(savedAddressDTO, HttpStatus.CREATED);
     }
 
-    @GetMapping("/addresses")
+    @GetMapping("/admin/addresses")
     public ResponseEntity<List<AddressDTO>> getAddresses(){
         List<AddressDTO> addressList = addressService.getAddresses();
 

@@ -42,6 +42,9 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "last_logout_date")
+    private java.time.LocalDateTime lastLogoutDate;
+
     public User(String userName, String email, String password) {
         this.userName = userName;
         this.email = email;

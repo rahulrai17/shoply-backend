@@ -6,6 +6,7 @@ import com.shoply.backend.payload.ProductDTO;
 import com.shoply.backend.repositories.CartRepository;
 import com.shoply.backend.service.CartService;
 import com.shoply.backend.util.AuthUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Shopping Cart", description = "Manage User Carts")
 public class CartController {
 
     @Autowired
@@ -33,7 +35,7 @@ public class CartController {
         return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.CREATED);
     }
 
-    @GetMapping("carts")
+    @GetMapping("/admin/carts")
     public ResponseEntity<List<CartDTO>> getCarts() {
         List<CartDTO> cartDTOS = cartService.getAllCarts();
         return new ResponseEntity<List<CartDTO>>(cartDTOS, HttpStatus.FOUND);

@@ -1,18 +1,9 @@
 package com.shoply.backend.controller;
 
-import com.shoply.backend.model.AppRole;
-import com.shoply.backend.model.Role;
-import com.shoply.backend.model.User;
-import com.shoply.backend.repositories.RoleRepository;
-import com.shoply.backend.repositories.UserRepository;
-import com.shoply.backend.security.jwt.JwtUtils;
-import com.shoply.backend.security.request.LoginRequest;
-import com.shoply.backend.security.request.SignupRequest;
-import com.shoply.backend.security.response.MessageResponse;
-import com.shoply.backend.security.response.UserInfoResponse;
-import com.shoply.backend.security.service.UserDetailsImpl;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -25,12 +16,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.shoply.backend.model.AppRole;
+import com.shoply.backend.model.Role;
+import com.shoply.backend.model.User;
+import com.shoply.backend.repositories.RoleRepository;
+import com.shoply.backend.repositories.UserRepository;
+import com.shoply.backend.security.jwt.JwtUtils;
+import com.shoply.backend.security.request.LoginRequest;
+import com.shoply.backend.security.request.SignupRequest;
+import com.shoply.backend.security.response.MessageResponse;
+import com.shoply.backend.security.response.UserInfoResponse;
+import com.shoply.backend.security.service.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Authentication", description = "Login, Register, and Role management")
 public class AuthController {
 
     @Autowired
@@ -177,6 +180,16 @@ public class AuthController {
     // This is method that we are using to invalidate the cookies since there is no other way to do that, tha only way is when the time is expired.
     @PostMapping("/signout")
     public ResponseEntity<?> signoutUser() {
+        Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!principle.toString().equals("anonymousUser")) {
+            Long userId = ((UserDetailsImpl) principle).getId();
+            User user = userRepository.findById(userId).orElse(null);
+            if (user != null) {
+                user.setLastLogoutDate(LocalDateTime.now());
+                userRepository.saveAndFlush(user);
+            }
+        }
+
         ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
 
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE,

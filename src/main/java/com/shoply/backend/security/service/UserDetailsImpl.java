@@ -1,4 +1,5 @@
 package com.shoply.backend.security.service;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -25,23 +26,23 @@ public class UserDetailsImpl implements UserDetails {
 
     private String email;
 
-
-    @JsonIgnore // Hides the password when serializing JSON responses.
+    @JsonIgnore
     private String password;
 
-    // Stores roles/permissions (GrantedAuthority) for authorization.
+    private LocalDateTime lastLogoutDate;
+
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(Long id, String username, String email, String password,
+    public UserDetailsImpl(Long id, String username, String email, String password, LocalDateTime lastLogoutDate,
                            Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.lastLogoutDate = lastLogoutDate;
         this.authorities = authorities;
     }
 
-    // A static method in Java is a method that belongs to the class itself rather than to any specific object of that class.
     public static UserDetailsImpl build(User user) {
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getRoleName().name()))
@@ -52,6 +53,7 @@ public class UserDetailsImpl implements UserDetails {
                 user.getUserName(),
                 user.getEmail(),
                 user.getPassword(),
+                user.getLastLogoutDate(),
                 authorities);
     }
 
