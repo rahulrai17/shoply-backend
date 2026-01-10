@@ -1,9 +1,11 @@
 package com.shoply.backend.controller;
 
 import com.shoply.backend.config.AppConstants;
+import com.shoply.backend.payload.APIResponse;
 import com.shoply.backend.payload.CategoryDTO;
 import com.shoply.backend.payload.CategoryResponse;
 import com.shoply.backend.service.CategoryService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
 
+    @Operation(summary = "Get All Categories", description = "Retrieve a paginated list of all product categories.")
     @GetMapping("/public/categories")
     public ResponseEntity<CategoryResponse> getAllCategories(
             @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
@@ -32,18 +35,21 @@ public class CategoryController {
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
+    @Operation(summary = "Create Category", description = "Add a new category to the system. Admin access required.")
     @PostMapping("/admin/categories")
     public ResponseEntity<CategoryDTO> createCategory(@Valid @RequestBody CategoryDTO categoryDTO){
         CategoryDTO savedCategoryDTO = categoryService.createCategories(categoryDTO);
         return new ResponseEntity<>(savedCategoryDTO, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Update Category", description = "Update an existing category by its ID. Admin access required.")
     @PutMapping("/admin/categories/{categoryId}")
     public ResponseEntity<CategoryDTO> updateCategory(@Valid @RequestBody CategoryDTO categoryDTO, @PathVariable Long categoryId){
             CategoryDTO savedCategoryDTO = categoryService.updateCategory(categoryDTO, categoryId);
             return new ResponseEntity<>(savedCategoryDTO, HttpStatus.OK);
     }
 
+    @Operation(summary = "Delete Category", description = "Delete a category by its ID. Admin access required.")
     @DeleteMapping("/admin/categories/{categoryId}")
     public ResponseEntity<CategoryDTO> deleteCategory(@PathVariable Long categoryId){
             CategoryDTO categoryDTO = categoryService.deleteCategory(categoryId);

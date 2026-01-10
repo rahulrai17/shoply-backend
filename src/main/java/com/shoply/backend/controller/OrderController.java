@@ -1,9 +1,11 @@
 package com.shoply.backend.controller;
 
+import com.shoply.backend.payload.APIResponse;
 import com.shoply.backend.payload.OrderDTO;
 import com.shoply.backend.payload.OrderRequestDTO;
 import com.shoply.backend.service.OrderService;
 import com.shoply.backend.util.AuthUtil;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ public class OrderController {
     @Autowired
     private AuthUtil authUtil;
 
+    @Operation(summary = "Place Order", description = "Checkout the shopping cart and place an order using a specific payment method.")
     @PostMapping("/order/users/payments/{paymentMethod}")
     public ResponseEntity<OrderDTO> orderProducts(@PathVariable String paymentMethod, @RequestBody OrderRequestDTO orderRequestDTO) {
         String emailId = authUtil.loggedInEmail();
@@ -36,4 +39,3 @@ public class OrderController {
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }
 }
-

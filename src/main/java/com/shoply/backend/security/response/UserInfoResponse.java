@@ -1,12 +1,20 @@
 package com.shoply.backend.security.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.List;
 
 public class UserInfoResponse {
+    @Schema(example = "1")
     private Long id;
+    
+    @Schema(example = "springBootEcommerce=eyJhbGciOiJIUzM4NCJ9...")
     private String jwtToken;
 
+    @Schema(example = "admin")
     private String username;
+    
+    @Schema(example = "[\"ROLE_ADMIN\", \"ROLE_USER\"]")
     private List<String> roles;
 
 

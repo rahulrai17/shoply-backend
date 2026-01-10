@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import com.shoply.backend.model.AppRole;
 import com.shoply.backend.model.Role;
 import com.shoply.backend.model.User;
+import com.shoply.backend.payload.APIResponse;
 import com.shoply.backend.repositories.RoleRepository;
 import com.shoply.backend.repositories.UserRepository;
 import com.shoply.backend.security.jwt.JwtUtils;
@@ -27,6 +28,7 @@ import com.shoply.backend.security.request.SignupRequest;
 import com.shoply.backend.security.response.MessageResponse;
 import com.shoply.backend.security.response.UserInfoResponse;
 import com.shoply.backend.security.service.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,7 @@ public class AuthController {
     PasswordEncoder encoder;
 
 
+    @Operation(summary = "Authenticate User", description = "Login with username and password to receive a JWT cookie.")
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
@@ -104,6 +107,7 @@ public class AuthController {
                 .body(response);
     }
 
+    @Operation(summary = "Register User", description = "Create a new user account with specified roles.")
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUserName(signUpRequest.getUsername())) {
@@ -155,7 +159,7 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
-    // Authentication object is passed automatically
+    @Operation(summary = "Get Current User", description = "Fetch details of the currently authenticated user.")
     @GetMapping("/user")
     public ResponseEntity<?> getUserDetails (Authentication authentication){
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -177,7 +181,7 @@ public class AuthController {
     }
 
 
-    // This is method that we are using to invalidate the cookies since there is no other way to do that, tha only way is when the time is expired.
+    @Operation(summary = "Logout User", description = "Invalidate the current session and clear the JWT cookie.")
     @PostMapping("/signout")
     public ResponseEntity<?> signoutUser() {
         Object principle = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

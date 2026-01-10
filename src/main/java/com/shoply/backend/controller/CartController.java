@@ -1,11 +1,13 @@
 package com.shoply.backend.controller;
 
 import com.shoply.backend.model.Cart;
+import com.shoply.backend.payload.APIResponse;
 import com.shoply.backend.payload.CartDTO;
 import com.shoply.backend.payload.ProductDTO;
 import com.shoply.backend.repositories.CartRepository;
 import com.shoply.backend.service.CartService;
 import com.shoply.backend.util.AuthUtil;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,7 @@ public class CartController {
     @Autowired
     private AuthUtil authUtil;
 
+    @Operation(summary = "Add Product to Cart", description = "Add a specific quantity of a product to the user's shopping cart.")
     @PostMapping("/carts/products/{productId}/quantity/{quantity}")
     public ResponseEntity<CartDTO> addProductToCart(@PathVariable Long productId,
                                                     @PathVariable Integer quantity){
@@ -35,12 +38,14 @@ public class CartController {
         return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Get All Carts", description = "Retrieve a list of all shopping carts in the system. Admin access required.")
     @GetMapping("/admin/carts")
     public ResponseEntity<List<CartDTO>> getCarts() {
         List<CartDTO> cartDTOS = cartService.getAllCarts();
         return new ResponseEntity<List<CartDTO>>(cartDTOS, HttpStatus.FOUND);
     }
 
+    @Operation(summary = "Get My Cart", description = "Fetch the shopping cart details for the currently authenticated user.")
     @GetMapping("/carts/users/cart")
     public ResponseEntity<CartDTO> getCartById(){
         String emailId = authUtil.loggedInEmail();
@@ -51,6 +56,7 @@ public class CartController {
     }
 
     // we are passing two params 1 productId and "Operation : update / delete"
+    @Operation(summary = "Update Cart Product", description = "Increment or decrement the quantity of a product in the cart.")
     @PutMapping("/cart/products/{productId}/quantity/{operation}")
     public ResponseEntity<CartDTO> updateCartProduct(@PathVariable Long productId,
                                                      @PathVariable String operation) {
@@ -61,6 +67,7 @@ public class CartController {
         return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.OK);
     }
 
+    @Operation(summary = "Delete Product from Cart", description = "Remove a product completely from a specific cart.")
     @DeleteMapping("/carts/{cartId}/product/{productId}")
     public ResponseEntity<String> deleteProductFromCart(@PathVariable Long cartId,
                                                         @PathVariable Long productId) {
