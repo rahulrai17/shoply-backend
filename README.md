@@ -109,6 +109,11 @@ To maintain clean code quality and build stability, direct pushes to `main` and 
 
 ### 🛠️ Developer Workflow & Branching Strategy
 
+```
+[ Feature / Bugfix Branch ]  ──(PR)──►  [ develop Branch ]  ──(PR)──►  [ main Branch ]
+ (feature/* or bugfix/*)                 (Staging)                      (Production)
+```
+
 1. **Clone & Checkout Feature Branch:**
    ```bash
    git checkout develop
@@ -116,26 +121,31 @@ To maintain clean code quality and build stability, direct pushes to `main` and 
    git checkout -b feature/your-feature-name
    ```
 
-2. **Branch Naming Conventions:**
+2. **Branch Naming Conventions & CI Triggers:**
    * Features: `feature/short-description` (e.g. `feature/stripe-integration`)
    * Bug Fixes: `bugfix/short-description` (e.g. `bugfix/cart-null-pointer`)
-   * Docs: `docs/short-description` (e.g. `docs/api-specs`)
+   * Hot Fixes: `hotfix/short-description` (e.g. `hotfix/login-bug`)
 
-3. **Local Testing Requirements:**  
+3. **Strict Target Branch Promotion Rules:**
+   * **Feature / Bugfix PRs:** PRs from `feature/*`, `bugfix/*`, or `hotfix/*` **must target `develop`**.
+   * **Production Release PRs:** PRs targeting `main` **must come ONLY from `develop`**.
+   * ❌ **Prohibited:** Direct PRs from `feature/*` or `bugfix/*` to `main` are automatically detected and **failed by CI/CD enforcement**.
+
+4. **Local Testing Requirements:**  
    Before pushing, developers **must** run local compilation and test suites to verify 0 failures:
    ```bash
    .\mvnw.cmd clean package    # Windows
    ./mvnw clean package        # Linux / Mac
    ```
 
-4. **Push & Open Pull Request (PR):**
+5. **Push & Open Pull Request (PR):**
    ```bash
    git add -A
    git commit -m "feat: description of changes"
    git push origin feature/your-feature-name
    ```
    * Open a **Pull Request (PR)** on GitHub targeting the `develop` branch.
-   * **GitHub Actions CI/CD** will execute tests automatically. Once the status check displays **GREEN (✅)** and a reviewer approves, the PR can be merged into `develop`.
+   * **GitHub Actions CI/CD** executes automated tests and GitFlow branch rules. Once status checks display **GREEN (✅)** and a reviewer approves, the PR can be merged into `develop`.
 
 ---
 
