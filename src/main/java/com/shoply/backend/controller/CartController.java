@@ -1,0 +1,78 @@
+package com.shoply.backend.controller;
+
+import com.shoply.backend.model.Cart;
+import com.shoply.backend.payload.APIResponse;
+import com.shoply.backend.payload.CartDTO;
+import com.shoply.backend.repositories.CartRepository;
+import com.shoply.backend.service.CartService;
+import com.shoply.backend.util.AuthUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api")
+@Tag(name = "Shopping Cart", description = "Manage User Carts")
+public class CartController {
+
+    @Autowired
+    private CartService cartService;
+
+    @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private AuthUtil authUtil;
+
+    @Operation(summary = "Add Product to Cart", description = "Add a specific quantity of a product to the user's shopping cart.")
+    @PostMapping("/carts/products/{productId}/quantity/{quantity}")
+    public ResponseEntity<CartDTO> addProductToCart(@PathVariable Long productId,
+                                                    @PathVariable Integer quantity){
+        CartDTO cartDTO = cartService.addProductToCart(productId, quantity);
+        return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Get All Carts", description = "Retrieve a list of all shopping carts in the system. Admin access required.")
+    @GetMapping("/admin/carts")
+    public ResponseEntity<List<CartDTO>> getCarts() {
+        List<CartDTO> cartDTOS = cartService.getAllCarts();
+        return new ResponseEntity<List<CartDTO>>(cartDTOS, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get My Cart", description = "Fetch the shopping cart details for the currently authenticated user.")
+    @GetMapping("/carts/users/cart")
+    public ResponseEntity<CartDTO> getCartById(){
+        String emailId = authUtil.loggedInEmail();
+        Cart cart = cartRepository.findCartByEmail(emailId);
+        Long cardId = (cart != null) ? cart.getCartId() : null;
+        CartDTO cartDTO = cartService.getCart(emailId, cardId);
+        return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.OK);
+    }
+
+    // we are passing two params 1 productId and "Operation : update / delete"
+    @Operation(summary = "Update Cart Product", description = "Increment or decrement the quantity of a product in the cart.")
+    @PutMapping("/cart/products/{productId}/quantity/{operation}")
+    public ResponseEntity<CartDTO> updateCartProduct(@PathVariable Long productId,
+                                                     @PathVariable String operation) {
+
+        CartDTO cartDTO = cartService.updateProductQuantityInCart(productId,
+                operation.equalsIgnoreCase("delete") ? -1 : 1);
+
+        return new ResponseEntity<CartDTO>(cartDTO, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Delete Product from Cart", description = "Remove a product completely from a specific cart.")
+    @DeleteMapping("/carts/{cartId}/product/{productId}")
+    public ResponseEntity<String> deleteProductFromCart(@PathVariable Long cartId,
+                                                        @PathVariable Long productId) {
+        String status = cartService.deleteProductFromCart(cartId, productId);
+
+        return new ResponseEntity<String>(status, HttpStatus.OK);
+    }
+
+}

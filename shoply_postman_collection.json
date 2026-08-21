@@ -1,0 +1,286 @@
+{
+	"info": {
+		"_postman_id": "shoply-full-v4",
+		"name": "Shoply Backend - Full API Suite",
+		"description": "Comprehensive collection covering all controllers. Includes all DELETE endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01. Authentication",
+			"item": [
+				{
+					"name": "Signup (Customer/Admin/Seller)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin_user\",\n  \"email\": \"admin@shoply.com\",\n  \"password\": \"adminPass123\",\n  \"role\": [\"admin\", \"seller\", \"user\"]\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/auth/signup", "host": ["{{baseUrl}}"], "path": ["api", "auth", "signup"] }
+					}
+				},
+				{
+					"name": "Signin (Admin)",
+					"event": [{ "listen": "test", "script": { "exec": ["var jsonData = pm.response.json();", "var token = jsonData.jwtToken.split('=')[1].split(';')[0];", "pm.collectionVariables.set(\"adminToken\", token);"], "type": "text/javascript" } }],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"adminPass\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/auth/signin", "host": ["{{baseUrl}}"], "path": ["api", "auth", "signin"] }
+					}
+				},
+				{
+					"name": "Signin (User1)",
+					"event": [{ "listen": "test", "script": { "exec": ["var jsonData = pm.response.json();", "var token = jsonData.jwtToken.split('=')[1].split(';')[0];", "pm.collectionVariables.set(\"userToken\", token);"], "type": "text/javascript" } }],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"user1\",\n  \"password\": \"password1\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/auth/signin", "host": ["{{baseUrl}}"], "path": ["api", "auth", "signin"] }
+					}
+				},
+				{
+					"name": "Get Current User Details",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{userToken}}", "type": "string" }] },
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/api/auth/user", "host": ["{{baseUrl}}"], "path": ["api", "auth", "user"] }
+					}
+				},
+				{
+					"name": "Signout",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{userToken}}", "type": "string" }] },
+						"method": "POST",
+						"url": { "raw": "{{baseUrl}}/api/auth/signout", "host": ["{{baseUrl}}"], "path": ["api", "auth", "signout"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "02. Categories (Admin/Public)",
+			"item": [
+				{
+					"name": "Admin: Create Category",
+					"event": [{ "listen": "test", "script": { "exec": ["var jsonData = pm.response.json();", "pm.collectionVariables.set(\"categoryId\", jsonData.categoryId);"], "type": "text/javascript" } }],
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+						"method": "POST",
+						"body": { "mode": "raw", "raw": "{\n  \"categoryName\": \"Electronics\"\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/api/admin/categories", "host": ["{{baseUrl}}"], "path": ["api", "admin", "categories"] }
+					}
+				},
+				{
+					"name": "Admin: Update Category",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+						"method": "PUT",
+						"body": { "mode": "raw", "raw": "{\n  \"categoryName\": \"Mobile & Laptops\"\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/api/admin/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["api", "admin", "categories", "{{categoryId}}"] }
+					}
+				},
+				{
+					"name": "Admin: Delete Category",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/api/admin/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["api", "admin", "categories", "{{categoryId}}"] }
+					}
+				},
+				{
+					"name": "Public: Get All Categories",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/public/categories?pageNumber=0&pageSize=10&sortBy=categoryId&sortOrder=asc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "public", "categories"],
+							"query": [
+								{ "key": "pageNumber", "value": "0" },
+								{ "key": "pageSize", "value": "10" },
+								{ "key": "sortBy", "value": "categoryId" },
+								{ "key": "sortOrder", "value": "asc" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "03. Products (Admin/Public)",
+			"item": [
+				{
+					"name": "Admin: Add Product",
+					"event": [{ "listen": "test", "script": { "exec": ["var jsonData = pm.response.json();", "pm.collectionVariables.set(\"productId\", jsonData.productId);"], "type": "text/javascript" } }],
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+						"method": "POST",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"productName\": \"Sony WH-1000XM5\",\n  \"description\": \"Industry leading noise canceling headphones\",\n  \"quantity\": 50,\n  \"price\": 350.0,\n  \"discount\": 5.0,\n  \"specialPrice\": 332.5\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/admin/categories/{{categoryId}}/product", "host": ["{{baseUrl}}"], "path": ["api", "admin", "categories", "{{categoryId}}", "product"] }
+					}
+				},
+				{
+					"name": "Admin: Update Product",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+						"method": "PUT",
+						"body": { "mode": "raw", "raw": "{\n  \"productName\": \"Sony XM5 - Updated\",\n  \"price\": 340.0\n}", "options": { "raw": { "language": "json" } } },
+						"url": { "raw": "{{baseUrl}}/api/admin/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["api", "admin", "products", "{{productId}}"] }
+					}
+				},
+				{
+					"name": "Admin: Delete Product",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/api/admin/products/{{productId}}", "host": ["{{baseUrl}}"], "path": ["api", "admin", "products", "{{productId}}"] }
+					}
+				},
+				{
+					"name": "Public: Get All Products",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/api/public/products?pageNumber=0&pageSize=10", "host": ["{{baseUrl}}"], "path": ["api", "public", "products"] }
+					}
+				},
+				{
+					"name": "Public: Get Products by Category",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/api/public/Categories/{{categoryId}}/products", "host": ["{{baseUrl}}"], "path": ["api", "public", "Categories", "{{categoryId}}", "products"] }
+					}
+				},
+				{
+					"name": "Public: Search Products by Keyword",
+					"request": {
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/api/public/products/keyword/Sony", "host": ["{{baseUrl}}"], "path": ["api", "public", "products", "keyword", "Sony"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "04. Shopping Cart",
+			"item": [
+				{
+					"name": "Add Product to Cart",
+					"event": [{ "listen": "test", "script": { "exec": ["var jsonData = pm.response.json();", "pm.collectionVariables.set(\"cartId\", jsonData.cartId);"], "type": "text/javascript" } }],
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{userToken}}", "type": "string" }] },
+						"method": "POST",
+						"url": { "raw": "{{baseUrl}}/api/carts/products/{{productId}}/quantity/1", "host": ["{{baseUrl}}"], "path": ["api", "carts", "products", "{{productId}}", "quantity", "1"] }
+					}
+				},
+				{
+					"name": "View My Cart",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{userToken}}", "type": "string" }] },
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/api/carts/users/cart", "host": ["{{baseUrl}}"], "path": ["api", "carts", "users", "cart"] }
+					}
+				},
+				{
+					"name": "Admin: View All Carts",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }] },
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/api/admin/carts", "host": ["{{baseUrl}}"], "path": ["api", "admin", "carts"] }
+					}
+				},
+				{
+					"name": "Update Item Quantity",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{userToken}}", "type": "string" }] },
+						"method": "PUT",
+						"url": { "raw": "{{baseUrl}}/api/cart/products/{{productId}}/quantity/add", "host": ["{{baseUrl}}"], "path": ["api", "cart", "products", "{{productId}}", "quantity", "add"] }
+					}
+				},
+				{
+					"name": "Delete Item from Cart",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{userToken}}", "type": "string" }] },
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/api/carts/{{cartId}}/product/{{productId}}", "host": ["{{baseUrl}}"], "path": ["api", "carts", "{{cartId}}", "product", "{{productId}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "05. Addresses",
+			"item": [
+				{
+					"name": "Create Address",
+					"event": [{ "listen": "test", "script": { "exec": ["var jsonData = pm.response.json();", "pm.collectionVariables.set(\"addressId\", jsonData.addressId);"], "type": "text/javascript" } }],
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{userToken}}", "type": "string" }] },
+						"method": "POST",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"street\": \"Main Street\",\n  \"buildingName\": \"Apt 4B\",\n  \"city\": \"New York\",\n  \"state\": \"NY\",\n  \"country\": \"USA\",\n  \"pincode\": \"10001\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/addresses", "host": ["{{baseUrl}}"], "path": ["api", "addresses"] }
+					}
+				},
+				{
+					"name": "View My Addresses",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{userToken}}", "type": "string" }] },
+						"method": "GET",
+						"url": { "raw": "{{baseUrl}}/api/users/addresses", "host": ["{{baseUrl}}"], "path": ["api", "users", "addresses"] }
+					}
+				},
+				{
+					"name": "Delete Address",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{userToken}}", "type": "string" }] },
+						"method": "DELETE",
+						"url": { "raw": "{{baseUrl}}/api/addresses/{{addressId}}", "host": ["{{baseUrl}}"], "path": ["api", "addresses", "{{addressId}}"] }
+					}
+				}
+			]
+		},
+		{
+			"name": "06. Orders",
+			"item": [
+				{
+					"name": "Place Order (Checkout)",
+					"request": {
+						"auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{userToken}}", "type": "string" }] },
+						"method": "POST",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"addressId\": {{addressId}},\n  \"paymentMethod\": \"STRIPE\",\n  \"pgName\": \"Stripe\",\n  \"pgPaymentId\": \"ch_9999\",\n  \"pgStatus\": \"SUCCEEDED\",\n  \"pgResponseMessage\": \"Paid via Postman\"\n}",
+							"options": { "raw": { "language": "json" } }
+						},
+						"url": { "raw": "{{baseUrl}}/api/order/users/payments/Card", "host": ["{{baseUrl}}"], "path": ["api", "order", "users", "payments", "Card"] }
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+		{ "key": "adminToken", "value": "", "type": "string" },
+		{ "key": "userToken", "value": "", "type": "string" },
+		{ "key": "categoryId", "value": "1", "type": "string" },
+		{ "key": "productId", "value": "1", "type": "string" },
+		{ "key": "cartId", "value": "1", "type": "string" },
+		{ "key": "addressId", "value": "1", "type": "string" }
+	]
+}

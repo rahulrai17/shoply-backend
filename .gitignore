@@ -1,0 +1,62 @@
+# Target & Build Outputs
+target/
+build/
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+!.mvn/wrapper/maven-wrapper.jar
+
+# Environment & Secrets Files
+.env
+.env.*
+*.env
+*.key
+*.pem
+*.crt
+*.p12
+
+# IDE & Editor Files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+.springBeans
+.factorypath
+.apt_generated/
+.sts4-cache/
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Log Files & Storage
+*.log
+logs/
+*.sys.log
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Temporary Uploads & Media (Preserve directory structure)
+images/*
+!images/.gitkeep
+
+# Helper Scratch Docs & Local Metadata
+geminimind.md
+HELP.md

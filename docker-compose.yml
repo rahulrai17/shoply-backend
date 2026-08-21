@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # Service 1: PostgreSQL Database Container
+  postgres:
+    image: postgres:15-alpine
+    container_name: shoply-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: shoplydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d shoplydb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Service 2: Shoply Spring Boot Backend Container
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shoply-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/shoplydb
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgrespassword
+      - DDL_AUTO=update
+      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      - JWT_EXPIRATION=86400000
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
