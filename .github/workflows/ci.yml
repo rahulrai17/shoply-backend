@@ -2,9 +2,9 @@ name: Shoply Backend CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main", "master", "develop", "feature/**" ]
+    branches: [ "main", "master", "develop", "feature/**", "bugfix/**", "hotfix/**" ]
   pull_request:
-    branches: [ "main", "master", "develop", "feature/**" ]
+    branches: [ "main", "master", "develop", "feature/**", "bugfix/**", "hotfix/**" ]
 
 jobs:
   build-and-test:
@@ -13,6 +13,27 @@ jobs:
     steps:
       - name: Checkout Code Repository
         uses: actions/checkout@v4
+
+      - name: Enforce GitFlow PR Rules
+        if: github.event_name == 'pull_request'
+        run: |
+          TARGET_BRANCH="${{ github.base_ref }}"
+          SOURCE_BRANCH="${{ github.head_ref }}"
+          
+          echo "Target Branch: $TARGET_BRANCH"
+          echo "Source Branch: $SOURCE_BRANCH"
+
+          # Rule 1: PRs targeting 'main' MUST come from 'develop'
+          if [ "$TARGET_BRANCH" = "main" ] && [ "$SOURCE_BRANCH" != "develop" ]; then
+            echo "❌ ERROR: Pull Requests to 'main' must come ONLY from 'develop'. Direct feature PRs to main are prohibited!"
+            exit 1
+          fi
+
+          # Rule 2: PRs targeting 'develop' MUST come from feature/, bugfix/, or hotfix/ branches
+          if [ "$TARGET_BRANCH" = "develop" ] && [[ "$SOURCE_BRANCH" != feature/* && "$SOURCE_BRANCH" != bugfix/* && "$SOURCE_BRANCH" != hotfix/* ]]; then
+            echo "❌ ERROR: Pull Requests to 'develop' must come from 'feature/', 'bugfix/', or 'hotfix/' branches!"
+            exit 1
+          fi
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
