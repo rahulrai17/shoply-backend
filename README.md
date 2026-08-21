@@ -11,7 +11,7 @@
 
 ---
 
-## Features Highlights
+## System Architecture & Engineering Highlights
 
 * **Multi-Vendor Layered Architecture:** Engineered a multi-vendor e-commerce RESTful backend using **Java 17**, **Spring Boot 3.4**, and **PostgreSQL**, implementing an N-Tier Layered Architecture (`Controller` ➔ `Service` ➔ `Repository`) to enforce strict separation of concerns and DTO decoupling.
 * **Hybrid JWT Security & Token Revocation:** Designed a hybrid authentication pipeline supporting **HTTP-Only JWT Cookies** and Bearer headers to mitigate XSS attacks; implemented stateful token revocation in `AuthTokenFilter` via database-persisted logout timestamp verification (`lastLogoutDate`).
@@ -100,6 +100,42 @@ Seed data is initialized on boot via `CommandLineRunner`:
 | **Customer** | `user1` | `password1` | Browse, Cart, Address, Checkout (`ROLE_USER`) |
 | **Seller** | `seller1` | `password2` | Manage own products & inventory (`ROLE_SELLER`) |
 | **Admin** | `admin` | `adminPass` | Full system oversight & Category CRUD (`ROLE_ADMIN`) |
+
+---
+
+## Git Workflow & Contribution Rules for Developers
+
+To maintain clean code quality and build stability, direct pushes to `main` and `develop` branches are **strictly prohibited by GitHub Branch Protection Rules**. All contributions must be made via Pull Requests (PRs).
+
+### 🛠️ Developer Workflow & Branching Strategy
+
+1. **Clone & Checkout Feature Branch:**
+   ```bash
+   git checkout develop
+   git pull origin develop
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Branch Naming Conventions:**
+   * Features: `feature/short-description` (e.g. `feature/stripe-integration`)
+   * Bug Fixes: `bugfix/short-description` (e.g. `bugfix/cart-null-pointer`)
+   * Docs: `docs/short-description` (e.g. `docs/api-specs`)
+
+3. **Local Testing Requirements:**  
+   Before pushing, developers **must** run local compilation and test suites to verify 0 failures:
+   ```bash
+   .\mvnw.cmd clean package    # Windows
+   ./mvnw clean package        # Linux / Mac
+   ```
+
+4. **Push & Open Pull Request (PR):**
+   ```bash
+   git add -A
+   git commit -m "feat: description of changes"
+   git push origin feature/your-feature-name
+   ```
+   * Open a **Pull Request (PR)** on GitHub targeting the `develop` branch.
+   * **GitHub Actions CI/CD** will execute tests automatically. Once the status check displays **GREEN (✅)** and a reviewer approves, the PR can be merged into `develop`.
 
 ---
 
