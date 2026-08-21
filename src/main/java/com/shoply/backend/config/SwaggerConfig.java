@@ -131,7 +131,10 @@ public class SwaggerConfig {
                         .version("1.0.0")
                         .contact(new Contact().name("Rahul Rai").email("rahulrai200017@example.com").url("https://github.com/rahulrai17"))
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")))
-                .servers(List.of(new Server().url("http://localhost:8080").description("Local Development Server")))
+                .servers(List.of(
+                        new Server().url("/").description("Default Server"),
+                        new Server().url("http://localhost:8080").description("Local Development Server")
+                ))
                 .tags(List.of(
                         new Tag().name("Authentication").description("User login, registration, profile lookup, and stateful signout"),
                         new Tag().name("Categories").description("Catalog taxonomy management for product categories"),
